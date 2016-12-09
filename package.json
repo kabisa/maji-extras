@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "main": "lib/maji-extras.js",
-  "directories.lib": "lib/",
+  "directories": {
+    "lib": "lib"
+  },
   "dependencies": {
   },
   "devDependencies": {
