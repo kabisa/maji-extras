@@ -1,5 +1,12 @@
 # Helpers
 
-> Role of helpers within Maji
+Helpers are common utilities to use in your app.
+They are there to solve common problems, or implement common interfaces
 
-[Infector](./infector.md) -- One line summary
+inclusion:
+
+```coffee
+Helper = require('maji-extras/lib/helpers/<helper-name>')
+```
+
+[infector](./infector.md) -- Create chaining constructions for mixins

@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "main": "lib/maji-extras.js",
-  "directories": {
-    "lib": "lib"
+  "scripts": {
+    "test": "karma start --singleRun && npm run lint",
+    "watch": "karma start",
+    "build": "coffee -c -o lib src",
+    "lint": "find src/ -type f -name '*.coffee'| xargs coffeelint"
   },
   "dependencies": {
   },
@@ -18,7 +21,7 @@
     "coffeeify": "~2.0.1",
     "aliasify": "~1.9.0",
     "chai": "~3.5.0",
-    "coffeelint": "~1.15.0",
+    "coffeelint": "~1.16.0",
     "sinon": "~1.17.2",
     "karma": "~0.13.22",
     "karma-browserify": "~5.1.0",

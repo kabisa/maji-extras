@@ -6,13 +6,11 @@ module.exports = function(karma) {
     frameworks: [ 'mocha', 'sinon-chai', 'browserify' ],
 
     files: [
-      { pattern: 'spec/spec_helper.coffee', watched: false, included: true, served: true },
-      { pattern: 'spec/**/*spec.coffee', watched: false, included: true, served: true }
+      { pattern: 'test/**/*spec.coffee', watched: false, included: true, served: true }
     ],
 
     preprocessors: {
-      'spec/spec_helper.coffee': [ 'browserify' ],
-      'spec/**/*spec.coffee': [ 'browserify' ]
+      'test/**/*spec.coffee': [ 'browserify' ]
     },
 
     client: {
