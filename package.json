@@ -2,6 +2,7 @@
   "name": "maji-extras",
   "version": "0.0.1",
   "private": true,
+  "main": "lib/maji-extras.js",
   "dependencies": {
   },
   "devDependencies": {
@@ -10,6 +11,7 @@
     "backbone.radio": "^2.0.0",
     "acorn": "~2.6.4",
     "browserify": "~13.0.0",
+    "coffee-script": "~1.12.1",
     "coffeeify": "~2.0.1",
     "aliasify": "~1.9.0",
     "chai": "~3.5.0",
