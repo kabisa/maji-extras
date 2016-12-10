@@ -9,4 +9,5 @@ inclusion:
 Helper = require('maji-extras/lib/helpers/<helper-name>')
 ```
 
-[infector](./infector.md) -- Create chaining constructions for mixins
+- [infector](./infector.md) -- Create chaining constructions for mixins
+- [transitionHelper](./transition_helper.md) -- Wait on CSS transitions using a promise

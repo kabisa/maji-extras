@@ -5,6 +5,12 @@ Allow mixins in classes that use `aliasMethodChain` to replace methods.
 Useful for adding multiple mixins to a class that want to alter the
 behavior of the same method.
 
+## Install
+
+`npm i maji-extras --save`
+
+`Infector = require('maji-extras/lib/helpers/infector')`
+
 ## Why an infector
 
 Let's say you have a mixin to add offline support to your Backbone
