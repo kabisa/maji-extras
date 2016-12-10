@@ -1,21 +1,27 @@
+Factory = require('js-factories')
 
 # This factory simulates the Cordova Camera
 #
 # ```coffeescript
 #
-#   @camera = Factory.create('cordovaCamera')
+#   beforeEach ->
+#     @camera = Factory.create('cordovaCamera').attach()
 #
-#   # Implementation uses navigator.camera like expected
+#   afterEach ->
+#     @camera.restore()
 #
-#   expect(@camera.getPicture).to.have.been.calledWith(
-#     sinon.match.typeOf('function')
-#     sinon.match.typeOf('function')
-#     sinon.match(
-#       cameraDirection: Camera.Direction.FRONT
-#       correctOrientation: yes
-#       destinationType: Camera.DestinationType.DATA_URL
+#   it 'describe testcase', ->
+#     # Implementation uses navigator.camera like expected
+#
+#     expect(@camera.getPicture).to.have.been.calledWith(
+#       sinon.match.typeOf('function')
+#       sinon.match.typeOf('function')
+#       sinon.match(
+#         cameraDirection: Camera.Direction.FRONT
+#         correctOrientation: yes
+#         destinationType: Camera.DestinationType.DATA_URL
+#       )
 #     )
-#   )
 # ```
 #
 Factory.define('cordovaCamera', ->
