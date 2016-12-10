@@ -5,8 +5,8 @@ Factories are means to prepare data for tests.
 ## Install
 
 ```
-npm i kabisa/maji-extras --save
-npm i js-factories --save
+npm i maji-extras --save-dev
+npm i js-factories --save-dev
 ```
 
 - [cordovaCamera](./cordova_camera.md) -- Simulate Cordova Camera for
