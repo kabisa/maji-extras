@@ -1,5 +1,4 @@
-
-swipeHelper =
+module.exports =
   addSwipeSupport: ($el) ->
     view = this
     $el.each ->
@@ -53,5 +52,3 @@ swipeHelper =
           view._swipeData = null
         no
       )
-
-module.exports = swipeHelper
