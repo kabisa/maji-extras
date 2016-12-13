@@ -9,6 +9,10 @@
     "build": "coffee -c -o lib src",
     "lint": "find src/ -type f -name '*.coffee'| xargs coffeelint"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kabisat/maji-extras"
+  },
   "dependencies": {},
   "devDependencies": {
     "acorn": "~2.6.4",
