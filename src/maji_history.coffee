@@ -17,7 +17,7 @@ class MajiHistory extends Backbone.History
     @_fireLeaveRoute()
     super # Boolean. True if matched, false otherwise
 
-  getFragment: (fragment, forcePushState) ->
+  getFragment: ->
     s = super
     @stripQuery(s)
 
