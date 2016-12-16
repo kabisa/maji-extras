@@ -16,7 +16,7 @@ You'll never use all of maji-extras, but you pick exactly the parts that you nee
 * Run `npm run watch` to start a Karma server with PhantomJS that will continuously watch your JavaScript files and run tests on changes.
 * Run `npm test` to run the JavaScript tests and the linter once.
 * Run `npm run build` to convert all CoffeeScript file to JavaScript.
-* Run `npm lint` to run the linter.
+* Run `npm run lint` to run the linter.
 
 ## Contents
 
