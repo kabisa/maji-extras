@@ -2,13 +2,18 @@
 
 Useful reusable components to use in the [Maji][maji] framework.
 
-## Installation:
+## Installation
 
 `npm i maji-extras --save`
 
-## Usage:
+## Usage
 
 You'll never use all of maji-extras, but you pick exactly the parts that you need for your project.
+
+## Development
+
+To run Javascript tests, run `bin/karma start`.
+This will start a Karma server with Phantomjs and will continuously watch your Javascript files and run tests on changes.
 
 ## Contents
 
