@@ -13,6 +13,6 @@ You'll never use all of maji-extras, but you pick exactly the parts that you nee
 ## Contents
 
 * [helpers](src/helpers/) -- Strong single purpose components to help in common tasks
-* [factories](src/factories/) -- Common data preperation for usage in tests
+* [factories](src/factories/) -- Common data preparation for usage in tests
 
 [maji]: https://github.com/kabisa/maji
