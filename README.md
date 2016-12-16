@@ -13,8 +13,8 @@ You'll never use all of maji-extras, but you pick exactly the parts that you nee
 ## Development
 
 * Run `npm install` to install all dependencies.
-* Run `bin/karma start` to run all Javascript tests.
-  This will start a Karma server with Phantomjs and will continuously watch your Javascript files and run tests on changes.
+* Run `bin/karma start` to run all JavaScript tests.
+  This will start a Karma server with PhantomJS and will continuously watch your JavaScript files and run tests on changes.
 
 ## Contents
 
