@@ -1,8 +1,8 @@
+$ = require('jquery')
 localforage = require('localforage')
-whenjs = require('when')
 
 _support = ->
-  whenjs(typeof window.NativeStorage != 'undefined')
+  $.when(typeof window.NativeStorage != 'undefined')
 
 _initStorage = (options) ->
   self = this
@@ -18,350 +18,236 @@ _initStorage = (options) ->
 
   self._dbInfo = dbInfo
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      localforage.getSerializer()
-        .then (serializer) ->
-          dbInfo.serializer = serializer
-          _getKeys(dbInfo)
-            .then ->
-              resolve()
-            .catch (error) ->
-              _setKeys([], dbInfo)
-                .then ->
-                  resolve()
-                .catch (error) ->
-                  reject(error)
+  localforage.getSerializer()
+    .then (serializer) ->
+      dbInfo.serializer = serializer
+      _getKeys(dbInfo)
         .catch (error) ->
-          reject(error)
-  )
-
-  promise
+          _setKeys([], dbInfo)
 
 _return = (promise, callback) ->
   if (callback)
     promise.then(
       (result) ->
         callback(null, result)
-      (error) ->
-        callback(error)
+      callback
     )
 
   promise
 
 _getKeys = (dbInfo) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      NativeStorage.getItem(
-        dbInfo.metaKeyPrefix + 'keys'
-        (serializedKeys) ->
-          deserializedKeys = dbInfo.serializer.deserialize(serializedKeys)
-          resolve(deserializedKeys)
-        (error) ->
-          reject(error)
-      )
+  deferred = $.Deferred()
+
+  NativeStorage.getItem(
+    dbInfo.metaKeyPrefix + 'keys'
+    (serializedKeys) ->
+      deserializedKeys = dbInfo.serializer.deserialize(serializedKeys)
+      deferred.resolve(deserializedKeys)
+    deferred.reject
   )
 
-  promise
+  deferred.promise()
 
 _setKeys = (keys, dbInfo) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      dbInfo.serializer.serialize(
-        keys
-        (serializedKeys, error) ->
-          if (error)
-            reject(error)
-          else
-            NativeStorage.setItem(
-              dbInfo.metaKeyPrefix + 'keys'
-              serializedKeys
-              -> resolve()
-              (error) ->
-                reject(error)
-            )
-      )
+  deferred = $.Deferred()
+
+  dbInfo.serializer.serialize(
+    keys
+    (serializedKeys, error) ->
+      if (error)
+        deferred.reject(error)
+      else
+        NativeStorage.setItem(
+          dbInfo.metaKeyPrefix + 'keys'
+          serializedKeys
+          deferred.resolve
+          deferred.reject
+        )
   )
 
-  promise
+  deferred.promise()
 
 _addKey = (key, dbInfo) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      _getKeys(dbInfo)
-        .then (keys) ->
-          index = keys.indexOf(key)
-          if (index == -1)
-            keys.push(key)
-            _setKeys(keys, dbInfo)
-              .then ->
-                resolve()
-              .catch (error) ->
-                reject(error)
-          else
-            resolve()
-        .catch (error) ->
-          reject(error)
-  )
-
-  promise
+  _getKeys(dbInfo)
+    .then (keys) ->
+      index = keys.indexOf(key)
+      if (index == -1)
+        keys.push(key)
+        _setKeys(keys, dbInfo)
 
 _removeKey = (key, dbInfo) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      _getKeys(dbInfo)
-        .then (keys) ->
-          index = keys.indexOf(key)
-          if (index == -1)
-            resolve()
-          else
-            keys.splice(index, 1)
-            _setKeys(keys, dbInfo)
-              .then ->
-                resolve()
-              .catch (error) ->
-                reject(error)
-        .catch (error) ->
-          reject(error)
-  )
-
-  promise
+  _getKeys(dbInfo)
+    .then (keys) ->
+      index = keys.indexOf(key)
+      return if (index == -1)
+      keys.splice(index, 1)
+      _setKeys(keys, dbInfo)
 
 clear = (callback) ->
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
+  p = self.ready().then ->
+    dbInfo = self._dbInfo
 
-          _getKeys(dbInfo)
-            .then (keys) ->
-              _clear(keys, dbInfo.dataKeyPrefix)
-                .then ->
-                  _setKeys([], dbInfo)
-                    .then ->
-                      resolve()
-                    .catch (error) ->
-                      reject(error)
-                .catch (error) ->
-                  reject(error)
-            .catch (error) ->
-              reject(error)
-      )
-  )
+    _getKeys(dbInfo)
+      .then (keys) ->
+        _clear(keys, dbInfo.dataKeyPrefix)
+      .then ->
+        _setKeys([], dbInfo)
 
-  _return(promise, callback)
+  _return(p, callback)
 
 _clear = (keys, prefix) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      if (keys.length > 0)
-        key = keys[0]
-        NativeStorage.remove(
-          prefix + key
-          ->
-            _clear(keys.slice(1), prefix)
-              .then ->
-                resolve()
-              .catch (error) ->
-                reject(error)
-          (error) ->
-            reject(error)
-        )
-      else
-        resolve()
-  )
+  deferred = $.Deferred()
 
-  promise
+  if (keys.length > 0)
+    key = keys[0]
+    NativeStorage.remove(
+      prefix + key
+      ->
+        _clear(keys.slice(1), prefix)
+          .then deferred.resolve
+          .catch deferred.reject
+      deferred.reject
+    )
+  else
+    deferred.resolve()
+
+  deferred.promise()
 
 getItem = (key, callback) ->
+  deferred = $.Deferred()
+
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
+  self.ready().then ->
+    dbInfo = self._dbInfo
 
-          NativeStorage.getItem(
-            dbInfo.dataKeyPrefix + key
-            (value) ->
-              if (value)
-                value = dbInfo.serializer.deserialize(value)
-              resolve(value)
-            (error) ->
-              reject(error)
-          )
-      )
-  )
+    NativeStorage.getItem(
+      dbInfo.dataKeyPrefix + key
+      (value) ->
+        if (value)
+          value = dbInfo.serializer.deserialize(value)
+        deferred.resolve(value)
+      deferred.reject
+    )
+  .catch deferred.reject
 
-  _return(promise, callback)
+  _return(deferred.promise(), callback)
 
 iterate = (iterator, callback) ->
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
+  promise = self.ready().then ->
+    dbInfo = self._dbInfo
 
-          _getKeys(dbInfo)
-            .then (keys) ->
-              _iterate(keys, dbInfo, iterator)
-                .then (result) ->
-                  resolve(result)
-                .catch (error) ->
-                  reject(error)
-            .catch (error) ->
-              reject(error)
-      )
-  )
+    _getKeys(dbInfo)
+      .then (keys) ->
+        _iterate(keys, dbInfo, iterator)
 
   _return(promise, callback)
 
 _iterate = (keys, dbInfo, iterator, index = 0) ->
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      if (keys.length > 0)
-        key = keys[0]
-        NativeStorage.getItem(
-          dbInfo.dataKeyPrefix + key
-          (serializedValue) ->
-            deserializedValue = dbInfo.serializer.deserialize(serializedValue)
-            iterationResult = iterator(deserializedValue, key, index + 1)
+  deferred = $.Deferred()
 
-            if (iterationResult != undefined)
-              resolve(iterationResult)
-            else
-              _iterate(keys.slice(1), dbInfo, iterator, index + 1)
-                .then(
-                  (result) ->
-                    resolve(result)
-                ).catch(
-                  (error) ->
-                    reject(error)
-                )
-          (error) ->
-            reject(error)
-        )
-      else
-        resolve()
-  )
+  if (keys.length > 0)
+    key = keys[0]
+    NativeStorage.getItem(
+      dbInfo.dataKeyPrefix + key
+      (serializedValue) ->
+        deserializedValue = dbInfo.serializer.deserialize(serializedValue)
+        iterationResult = iterator(deserializedValue, key, index + 1)
 
-  promise
+        if (iterationResult != undefined)
+          deferred.resolve(iterationResult)
+        else
+          _iterate(keys.slice(1), dbInfo, iterator, index + 1)
+            .then deferred.resolve
+            .catch deferred.reject
+      deferred.reject
+    )
+  else
+    deferred.resolve()
+
+  deferred.promise()
 
 key = (n, callback) ->
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          _getKeys(self._dbInfo)
-            .then (keys) ->
-              resolve(keys[n])
-            .catch (error) ->
-              reject(error)
-      )
-  )
+  promise = self.ready().then ->
+    _getKeys(self._dbInfo)
+      .then (keys) ->
+        return keys[n]
 
   _return(promise, callback)
 
 keys = (callback) ->
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
-
-          _getKeys(dbInfo)
-            .then (keys) ->
-              resolve(keys)
-            .catch (error) ->
-              reject(error)
-      )
-  )
+  promise = self.ready().then ->
+    dbInfo = self._dbInfo
+    _getKeys(dbInfo)
 
   _return(promise, callback)
 
 length = (callback) ->
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          _getKeys(self._dbInfo)
-            .then (keys) ->
-              resolve(keys.length)
-            .catch (error) ->
-              reject(error)
-      )
-  )
+  promise = self.ready().then ->
+    _getKeys(self._dbInfo)
+      .then (keys) ->
+        return keys.length
 
   _return(promise, callback)
 
 removeItem = (key, callback) ->
+  deferred = $.Deferred()
+
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
-          NativeStorage.remove(
-            dbInfo.dataKeyPrefix + key
-            ->
-              _removeKey(key, dbInfo)
-                .then ->
-                  resolve()
-                .catch (error) ->
-                  reject(error)
-            (error) -> reject(error)
-          )
-      )
-  )
+  self.ready().then ->
+    dbInfo = self._dbInfo
+    NativeStorage.remove(
+      dbInfo.dataKeyPrefix + key
+      ->
+        _removeKey(key, dbInfo)
+          .then ->
+            deferred.resolve()
+          .catch deferred.reject
+      deferred.reject
+    )
+  .catch deferred.reject
 
-  _return(promise, callback)
+  _return(deferred.promise(), callback)
 
 setItem = (key, value, callback) ->
+  deferred = $.Deferred()
+
   self = this
 
-  promise = whenjs.promise(
-    (resolve, reject) ->
-      self.ready().then(
-        ->
-          dbInfo = self._dbInfo
-          originalValue = value
+  self.ready().then ->
+    dbInfo = self._dbInfo
+    originalValue = value
 
-          dbInfo.serializer.serialize(
-            value
-            (serializedValue, error) ->
-              if (error)
-                reject(error)
-              else
-                NativeStorage.setItem(
-                  dbInfo.dataKeyPrefix + key
-                  serializedValue
-                  (result) ->
-                    _addKey(key, dbInfo)
-                      .then ->
-                        resolve(originalValue)
-                      .catch (error) ->
-                        reject(error)
-                  (error) ->
-                    reject(error)
-                )
+    dbInfo.serializer.serialize(
+      value
+      (serializedValue, error) ->
+        if (error)
+          deferred.reject(error)
+        else
+          NativeStorage.setItem(
+            dbInfo.dataKeyPrefix + key
+            serializedValue
+            (result) ->
+              _addKey(key, dbInfo)
+                .then ->
+                  deferred.resolve(originalValue)
+                .catch deferred.reject
+            deferred.reject
           )
-      )
-  )
+    )
 
-  _return(promise, callback)
+  _return(deferred.promise(), callback)
 
 nativeStorageDriver =
   _driver: 'nativeStorageDriver'

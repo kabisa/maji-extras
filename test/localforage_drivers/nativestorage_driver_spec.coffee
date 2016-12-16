@@ -1,5 +1,5 @@
+$ = require('jquery')
 nativeStorageDriver  = require('localforage_drivers/nativestorage_driver')
-whenjs = require('when')
 
 describe 'NativeStorage Driver', ->
   beforeEach ->
@@ -46,7 +46,7 @@ describe 'NativeStorage Driver', ->
 
     context 'with a #ready method that returns a resolved promise', ->
       beforeEach ->
-        nativeStorageDriver.ready = -> whenjs.resolve()
+        nativeStorageDriver.ready = -> $.Deferred().resolve()
 
       context 'with a default name and store name', ->
         beforeEach ->
@@ -84,8 +84,8 @@ describe 'NativeStorage Driver', ->
               .then (storedValue) ->
                 expect(storedValue).to.eql('value')
                 nativeStorageDriver.getItem('key')
-                  .then (retrievedValue) ->
-                    expect(retrievedValue).to.eql('value')
+              .then (retrievedValue) ->
+                expect(retrievedValue).to.eql('value')
 
           it 'calls the provided callback with the value passed as argument for a valid key', ->
             callback = sinon.spy()
@@ -99,13 +99,13 @@ describe 'NativeStorage Driver', ->
               .then (storedValue) ->
                 expect(storedValue).to.eql('value')
                 nativeStorageDriver.getItem('key')
-                  .then (retrievedValue) ->
-                    expect(retrievedValue).to.eql('value')
-                    nativeStorageDriver._initStorage({ name: 'otherName', storeName: 'otherStoreName' })
-                      .then ->
-                        expect(
-                          nativeStorageDriver.getItem('key')
-                        ).to.be.rejectedWith(Error, 'No value found for key \'otherName/otherStoreName/data/key\'')
+              .then (retrievedValue) ->
+                expect(retrievedValue).to.eql('value')
+                nativeStorageDriver._initStorage({ name: 'otherName', storeName: 'otherStoreName' })
+              .then ->
+                expect(
+                  nativeStorageDriver.getItem('key')
+                ).to.be.rejectedWith(Error, 'No value found for key \'otherName/otherStoreName/data/key\'')
 
           it 'returns a promise that is rejected with an error for an invalid key-value pair', ->
             expect(
@@ -150,8 +150,8 @@ describe 'NativeStorage Driver', ->
               nativeStorageDriver.setItem('aap', 'boom')
                 .then ->
                   nativeStorageDriver.setItem('noot', 'roos')
-                    .then ->
-                      nativeStorageDriver.setItem('mies', 'vis')
+                .then ->
+                  nativeStorageDriver.setItem('mies', 'vis')
 
             it 'returns a promise that is resolved to an array of keys for the valid prefix', ->
               expect(
@@ -170,8 +170,8 @@ describe 'NativeStorage Driver', ->
               nativeStorageDriver.setItem('aap', 'boom')
                 .then ->
                   nativeStorageDriver.setItem('noot', 'roos')
-                    .then ->
-                      nativeStorageDriver.setItem('mies', 'vis')
+                .then ->
+                  nativeStorageDriver.setItem('mies', 'vis')
 
             it 'returns a promise that is resolved to the number of keys for the valid prefix', ->
               expect(
@@ -190,8 +190,8 @@ describe 'NativeStorage Driver', ->
               nativeStorageDriver.setItem('aap', 'boom')
                 .then ->
                   nativeStorageDriver.setItem('noot', 'roos')
-                    .then ->
-                      nativeStorageDriver.setItem('mies', 'vis')
+                .then ->
+                  nativeStorageDriver.setItem('mies', 'vis')
 
             it 'returns a promise that is resolved to the key at the given index for the valid prefix', ->
               expect(nativeStorageDriver.key(0)).to.eventually.eql('aap')
@@ -217,8 +217,8 @@ describe 'NativeStorage Driver', ->
               nativeStorageDriver.setItem('aap', 'boom')
                 .then ->
                   nativeStorageDriver.setItem('noot', 'roos')
-                    .then ->
-                      nativeStorageDriver.setItem('mies', 'vis')
+                .then ->
+                  nativeStorageDriver.setItem('mies', 'vis')
 
             it 'calls the iterator for each value in storage and returns a promise that is resolved', ->
               values = []
@@ -266,8 +266,8 @@ describe 'NativeStorage Driver', ->
               nativeStorageDriver.setItem('aap', 'boom')
                 .then ->
                   nativeStorageDriver.setItem('noot', 'roos')
-                    .then ->
-                      nativeStorageDriver.setItem('mies', 'vis')
+                .then ->
+                  nativeStorageDriver.setItem('mies', 'vis')
 
             it 'returns a promise that is resolved', ->
               expect(nativeStorageDriver.clear()).to.eventually.fulfill
@@ -291,22 +291,22 @@ describe 'NativeStorage Driver', ->
                 nativeStorageDriver._initStorage({ name: 'otherName', storeName: 'otherStoreName' })
                   .then ->
                     nativeStorageDriver.setItem('aap', 'boom')
-                      .then ->
-                        nativeStorageDriver.setItem('noot', 'roos')
-                          .then ->
-                            nativeStorageDriver.setItem('mies', 'vis')
+                  .then ->
+                    nativeStorageDriver.setItem('noot', 'roos')
+                  .then ->
+                    nativeStorageDriver.setItem('mies', 'vis')
 
               it 'only removes the key-value pairs from the current storage', ->
                 nativeStorageDriver.clear()
                   .then ->
                     nativeStorageDriver.length()
-                      .then (length) ->
-                        expect(length).to.eql(0)
-                        nativeStorageDriver._initStorage({ name: 'name', storeName: 'storeName' })
-                          .then ->
-                            nativeStorageDriver.length()
-                              .then (length) ->
-                                expect(length).to.eql(3)
+                  .then (length) ->
+                    expect(length).to.eql(0)
+                    nativeStorageDriver._initStorage({ name: 'name', storeName: 'storeName' })
+                  .then ->
+                    nativeStorageDriver.length()
+                  .then (length) ->
+                    expect(length).to.eql(3)
 
           context 'when a key-value pair cannot be removed', ->
             beforeEach -> nativeStorageDriver.setItem('unremovableKey', 'value')

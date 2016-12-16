@@ -45,7 +45,6 @@
     "underscore": "~1.8.3",
     "vinyl-fs": "~2.4.2",
     "watchify": "~3.7.0",
-    "when": "~3.7.7",
     "yamlify": "~0.1.2"
   },
   "aliasify": {
