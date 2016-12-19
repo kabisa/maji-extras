@@ -26,3 +26,23 @@ You'll never use all of maji-extras, but you pick exactly the parts that you nee
 * [factories](src/factories/) -- Common data preparation for usage in tests
 
 [maji]: https://github.com/kabisa/maji
+
+## Versioning
+
+Since we support multiple components that can have their own changes,
+its difficult to stick one version number onto this repo.
+
+Because of that, we will stick to the following rules:
+
+* Update of Major when:
+  - Directory structure changes
+  - File names of components change
+* Update of Minor when:
+  - New components are added
+* Update of Patch when:
+  - Components are updated
+
+Components should already be stable before they are added to
+Maji-extras. When a component is radically changed and would break the
+interface, it should be added as a new component under a different name.
+
