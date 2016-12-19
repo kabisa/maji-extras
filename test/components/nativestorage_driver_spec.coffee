@@ -1,5 +1,5 @@
-$ = require('jquery')
-nativeStorageDriver  = require('localforage_drivers/nativestorage_driver')
+window.$ = window.jquery = require('jquery')
+nativeStorageDriver = require('components/nativestorage_driver')
 
 describe 'NativeStorage Driver', ->
   beforeEach ->

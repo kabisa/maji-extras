@@ -20,7 +20,9 @@ You'll never use all of maji-extras, but you pick exactly the parts that you nee
 
 ## Contents
 
-* [helpers](src/helpers/) -- Strong single purpose components to help in common tasks
+* [helpers](src/helpers/) -- Strong single purpose helpers to perform common tasks
+* [components](src/components/) -- Stand alone components for additional
+  features
 * [factories](src/factories/) -- Common data preparation for usage in tests
 
 [maji]: https://github.com/kabisa/maji
