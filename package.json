@@ -51,8 +51,7 @@
     "aliases": {
       "helpers": "./src/helpers",
       "factories": "./src/factories",
-      "maji_history": "./src/maji_history",
-      "localforage_drivers": "./src/localforage_drivers"
+      "components": "./src/components"
     }
   }
 }

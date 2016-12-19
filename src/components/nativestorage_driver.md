@@ -1,5 +1,7 @@
 ## Localforage Driver for NativeStorage
 
+Out of the box, Localforage supports storing data with LocalStorage, IndexedDB, and WebSQL.
+
 [NativeStorage](https://github.com/TheCocoaProject/cordova-plugin-nativestorage) is a Cordova plug-in for persistent storage of data on Android, iOS, and Windows devices.
 Use this driver to interact with the NativeStorage plug-in using the Localforage API.
 
@@ -16,7 +18,7 @@ Instruct Localforage to use this driver as follows:
 
 ```coffee
 localforage = require('localforage')
-nativeStorageDriver = require('maji-extras/lib/localforage_drivers/nativestorage_driver')
+nativeStorageDriver = require('maji-extras/lib/components/nativestorage_driver')
 
 localforage.defineDriver(nativeStorageDriver)
   .then(
