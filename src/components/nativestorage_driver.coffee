@@ -131,7 +131,10 @@ getItem = (key, callback) ->
         if (value)
           value = dbInfo.serializer.deserialize(value)
         deferred.resolve(value)
-      deferred.reject
+      (error) ->
+        # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
+        return deferred.resolve(null) if error.code is 2 # ITEM_NOT_FOUND
+        deferred.reject(error)
     )
   .catch deferred.reject
 
