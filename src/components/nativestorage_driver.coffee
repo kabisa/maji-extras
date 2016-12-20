@@ -32,6 +32,7 @@ _return = (promise, callback) ->
         callback(null, result)
       callback
     )
+  promise.catch ?= promise.fail
 
   promise
 
