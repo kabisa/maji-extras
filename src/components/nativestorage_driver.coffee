@@ -115,7 +115,7 @@ _clear = (keys, prefix) ->
   else
     deferred.resolve()
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 getItem = (key, callback) ->
   deferred = $.Deferred()
@@ -171,7 +171,7 @@ _iterate = (keys, dbInfo, iterator, index = 0) ->
   else
     deferred.resolve()
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 key = (n, callback) ->
   self = this
