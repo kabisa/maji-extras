@@ -25,6 +25,10 @@ _initStorage = (options) ->
         .catch (error) ->
           _setKeys([], dbInfo)
 
+_patchPromise = (promise) ->
+  promise.catch ?= promise.fail
+  promise
+
 _return = (promise, callback) ->
   if (callback)
     promise.then(
@@ -32,8 +36,7 @@ _return = (promise, callback) ->
         callback(null, result)
       callback
     )
-
-  promise
+  _patchPromise(promise)
 
 _getKeys = (dbInfo) ->
   deferred = $.Deferred()
@@ -46,7 +49,7 @@ _getKeys = (dbInfo) ->
     deferred.reject
   )
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 _setKeys = (keys, dbInfo) ->
   deferred = $.Deferred()
@@ -64,8 +67,7 @@ _setKeys = (keys, dbInfo) ->
           deferred.reject
         )
   )
-
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 _addKey = (key, dbInfo) ->
   _getKeys(dbInfo)
@@ -113,7 +115,7 @@ _clear = (keys, prefix) ->
   else
     deferred.resolve()
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 getItem = (key, callback) ->
   deferred = $.Deferred()
@@ -129,7 +131,10 @@ getItem = (key, callback) ->
         if (value)
           value = dbInfo.serializer.deserialize(value)
         deferred.resolve(value)
-      deferred.reject
+      (error) ->
+        # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
+        return deferred.resolve(null) if error.code is 2 # ITEM_NOT_FOUND
+        deferred.reject(error)
     )
   .catch deferred.reject
 
@@ -169,7 +174,7 @@ _iterate = (keys, dbInfo, iterator, index = 0) ->
   else
     deferred.resolve()
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 key = (n, callback) ->
   self = this
