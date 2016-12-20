@@ -2,7 +2,7 @@ $ = require('jquery')
 localforage = require('localforage')
 
 _support = ->
-  $.when(typeof window.NativeStorage != 'undefined')
+  typeof window.NativeStorage != 'undefined'
 
 _initStorage = (options) ->
   self = this

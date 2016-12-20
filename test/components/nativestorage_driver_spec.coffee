@@ -11,8 +11,8 @@ describe 'NativeStorage Driver', ->
 
   describe '#_support', ->
     context 'when NativeStorage is undefined', ->
-      it 'returns a promise that is resolved to false', ->
-        expect(nativeStorageDriver._support()).to.eventually.be.false
+      it 'returns false', ->
+        expect(nativeStorageDriver._support()).to.be.false
 
     context 'when NativeStorage is defined', ->
       beforeEach ->
@@ -21,8 +21,8 @@ describe 'NativeStorage Driver', ->
       afterEach ->
         delete window.NativeStorage
 
-      it 'returns a promise that is resolved to true', ->
-        expect(nativeStorageDriver._support()).to.eventually.be.true
+      it 'returns true', ->
+        expect(nativeStorageDriver._support()).to.be.true
 
   context 'with a fake implementation of NativeStorage', ->
     beforeEach ->
