@@ -25,6 +25,10 @@ _initStorage = (options) ->
         .catch (error) ->
           _setKeys([], dbInfo)
 
+_patchPromise = (promise) ->
+  promise.catch ?= promise.fail
+  promise
+
 _return = (promise, callback) ->
   if (callback)
     promise.then(
@@ -32,9 +36,7 @@ _return = (promise, callback) ->
         callback(null, result)
       callback
     )
-  promise.catch ?= promise.fail
-
-  promise
+  _patchPromise(promise)
 
 _getKeys = (dbInfo) ->
   deferred = $.Deferred()
@@ -47,7 +49,7 @@ _getKeys = (dbInfo) ->
     deferred.reject
   )
 
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 _setKeys = (keys, dbInfo) ->
   deferred = $.Deferred()
@@ -65,8 +67,7 @@ _setKeys = (keys, dbInfo) ->
           deferred.reject
         )
   )
-
-  deferred.promise()
+  _patchPromise(deferred.promise())
 
 _addKey = (key, dbInfo) ->
   _getKeys(dbInfo)
