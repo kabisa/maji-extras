@@ -55,7 +55,7 @@ describe 'MajiHistory', ->
       afterEach ->
         @router = null
 
-      it 'fires event before routing', ->
+      it 'fires when no router handles url', ->
         triggerSpy = sinon.spy()
         @history.on 'routeNotFound', triggerSpy
         @history.navigate 'myrouteNotExisting', trigger: yes
