@@ -1,4 +1,4 @@
-MajiHistory = require('maji_history')
+MajiHistory = require('components/maji_history')
 Backbone = require('backbone')
 
 describe 'MajiHistory', ->
