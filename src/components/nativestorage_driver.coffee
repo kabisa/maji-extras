@@ -25,6 +25,8 @@ _initStorage = (options) ->
         .catch (error) ->
           _setKeys([], dbInfo)
 
+# Adds the 'catch' method to promises that do not support it.
+# The default promises of jQuery 3.0.x do not support catch
 _patchPromise = (promise) ->
   promise.catch ?= promise.fail
   promise

@@ -321,6 +321,15 @@ describe 'NativeStorage Driver', ->
                 nativeStorageDriver.clear()
               ).to.eventually.be.rejectedWith(Error, 'Unable to remove value for key \'name/storeName/data/unremovableKey\'')
 
+            it 'returns a promise that supports `catch`', ->
+              val = 'executed'
+              expect(
+                nativeStorageDriver.clear()
+                  .then -> val = 'skipped'
+                  .catch (e) -> val += ' & handled'
+                  .then -> val
+              ).to.eventually.eql 'executed & handled'
+
             it 'calls the provided callback with an error', ->
               callback = sinon.spy()
               nativeStorageDriver.clear(callback)
