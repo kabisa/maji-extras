@@ -15,7 +15,9 @@ class MajiHistory extends Backbone.History
     fragment = @getFragment fragmentOverride
     @trigger 'loadingUrl', fragment
     @_fireLeaveRoute()
-    super # Boolean. True if matched, false otherwise
+    result = super # Boolean. True if matched, false otherwise
+    @trigger('routeNotFound', fragment) unless result
+    result
 
   getFragment: ->
     s = super

@@ -20,7 +20,7 @@ describe 'MajiHistory', ->
 
   describe 'loadingUrl', ->
 
-    describe 'loadingUrl trigger', ->
+    describe 'loadingUrl event', ->
 
       beforeEach ->
         Backbone.history = @history
@@ -33,7 +33,7 @@ describe 'MajiHistory', ->
       afterEach ->
         @router = null
 
-      it 'fires trigger before routing', ->
+      it 'fires event before routing', ->
         triggerSpy = sinon.spy()
         @history.on 'loadingUrl', triggerSpy
         @history.navigate 'myroute', trigger: yes
@@ -42,7 +42,27 @@ describe 'MajiHistory', ->
         expect(@router.myroute).to.have.been.called
         expect(triggerSpy).to.have.been.calledBefore @router.myroute
 
-    describe 'leaveRoute trigger', ->
+    describe 'routeNotFound event', ->
+
+      beforeEach ->
+        Backbone.history = @history
+        @router = new class extends Backbone.Router
+          routes:
+            'myroute': 'myroute'
+          myroute: sinon.spy()
+        @history.start()
+
+      afterEach ->
+        @router = null
+
+      it 'fires when no router handles url', ->
+        triggerSpy = sinon.spy()
+        @history.on 'routeNotFound', triggerSpy
+        @history.navigate 'myrouteNotExisting', trigger: yes
+
+        expect(triggerSpy).to.have.been.called
+
+    describe 'leaveRoute event', ->
 
       beforeEach ->
         Backbone.history = @history

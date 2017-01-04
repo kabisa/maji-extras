@@ -23,8 +23,20 @@ detecting leaving a route:
 class MyRouter extends Marionette.AppRouter
   routes:
     'someRoute': 'myAction'
-    
+
   initialize: ->
     @on 'leaveRoute:myAction', ->
       # Stuff to do when user navigates away
+```
+
+detecting navigation:
+
+```
+Backbone.history.on 'loadingUrl', (url) ->
+  # this triggers when attempting to load an url, before
+  # a route is triggered (or not)
+
+Backbone.history.on 'routeNotFound', (url) ->
+  # this is triggered after the 'loadingUrl' if no
+  # router could be found that handles the url
 ```
