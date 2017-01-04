@@ -11,7 +11,7 @@ The MajiHistory is an extended version of the [Backbone.History][bbhist]. It emi
 in `app.coffee`
 
 ```coffee
-MajiHistory = require('maji-extras/lib/maji_history')
+MajiHistory = require('maji-extras/lib/components/maji_history')
 Backbone.history = new MajiHistory
 ```
 
