@@ -66,17 +66,22 @@ describe 'NativeStorage Driver', ->
                 .then ->
                   expect(callback).to.have.been.calledWith(null, 'value')
 
-          it 'returns a promise that is rejected with an error for an unknown key', ->
+          it 'returns a promise that is resolved with null for an unknown key', ->
             expect(
               nativeStorageDriver.getItem('unknownKey')
-            ).to.be.rejectedWith(Error, 'No value found for key \'name/storeName/data/unknownKey\'')
+            ).to.be.eventually.eq(null)
 
-          it 'calls the provided callback with the error for an unknown key', ->
+          it 'calls the provided callback with null for an unknown key', ->
             callback = sinon.spy()
             nativeStorageDriver.getItem('unknownKey', callback)
               .catch ->
                 expect(callback).to.have.been.calledOnce
-                expect(callback.args[0][0].message).to.eql('No value found for key \'name/storeName/data/unknownKey\'')
+                expect(callback).to.have.been.calledWith(null, null)
+
+          it 'rejects a promise when an error occurs', ->
+            expect(
+              nativeStorageDriver.getItem('unretrievableKey')
+            ).to.be.rejectedWith(Error, 'Wrong parameter for key \'name/storeName/data/unretrievableKey\'')
 
         describe '#setItem', ->
           it 'returns a promise that is resolved with the value passed as argument for a valid key', ->
@@ -105,7 +110,7 @@ describe 'NativeStorage Driver', ->
               .then ->
                 expect(
                   nativeStorageDriver.getItem('key')
-                ).to.be.rejectedWith(Error, 'No value found for key \'otherName/otherStoreName/data/key\'')
+                ).to.eventually.eq(null)
 
           it 'returns a promise that is rejected with an error for an invalid key-value pair', ->
             expect(
@@ -316,6 +321,15 @@ describe 'NativeStorage Driver', ->
                 nativeStorageDriver.clear()
               ).to.eventually.be.rejectedWith(Error, 'Unable to remove value for key \'name/storeName/data/unremovableKey\'')
 
+            it 'returns a promise that supports `catch`', ->
+              val = 'executed'
+              expect(
+                nativeStorageDriver.clear()
+                  .then -> val = 'skipped'
+                  .catch (e) -> val += ' & handled'
+                  .then -> val
+              ).to.eventually.eql 'executed & handled'
+
             it 'calls the provided callback with an error', ->
               callback = sinon.spy()
               nativeStorageDriver.clear(callback)
@@ -327,13 +341,22 @@ nativeStorageFake =
   (state) ->
     unstorableKey = 'name/storeName/data/unstorableKey'
     unremovableKey = 'name/storeName/data/unremovableKey'
+    unretrievableKey = 'name/storeName/data/unretrievableKey'
     {
       getItem: (key, success, error) ->
         value = state[key]
-        if (value != undefined)
+        if key == unretrievableKey
+          e = new Error("Wrong parameter for key '#{key}'")
+          # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
+          e.code = 6 # WRONG_PARAMETER
+          error(e)
+        else if (value != undefined)
           success(value)
         else
-          error(new Error("No value found for key '#{key}'"))
+          e = new Error("No value found for key '#{key}'")
+          # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
+          e.code = 2 # ITEM_NOT_FOUND
+          error(e)
 
       setItem: (key, value, success, error) ->
         if key == unstorableKey
