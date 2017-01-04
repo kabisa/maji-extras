@@ -1,7 +1,7 @@
 MajiHistory = require('components/maji_history')
 Backbone = require('backbone')
 
-describe 'History', ->
+describe 'MajiHistory', ->
 
   beforeEach ->
     @history = new MajiHistory
