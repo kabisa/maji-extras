@@ -22,8 +22,10 @@ _initStorage = (options) ->
     .then (serializer) ->
       dbInfo.serializer = serializer
       _getKeys(dbInfo)
-        .catch (error) ->
-          _setKeys([], dbInfo)
+        .then(
+          null,
+          (error) -> _setKeys([], dbInfo)
+        )
 
 # Adds the 'catch' method to promises that do not support it.
 # The default promises of jQuery 3.0.x do not support catch
@@ -110,8 +112,7 @@ _clear = (keys, prefix) ->
       prefix + key
       ->
         _clear(keys.slice(1), prefix)
-          .then deferred.resolve
-          .catch deferred.reject
+          .then(deferred.resolve, deferred.reject)
       deferred.reject
     )
   else
@@ -138,7 +139,7 @@ getItem = (key, callback) ->
         return deferred.resolve(null) if error.code is 2 # ITEM_NOT_FOUND
         deferred.reject(error)
     )
-  .catch deferred.reject
+  .then(null, deferred.reject)
 
   _return(deferred.promise(), callback)
 
@@ -169,8 +170,7 @@ _iterate = (keys, dbInfo, iterator, index = 0) ->
           deferred.resolve(iterationResult)
         else
           _iterate(keys.slice(1), dbInfo, iterator, index + 1)
-            .then deferred.resolve
-            .catch deferred.reject
+            .then(deferred.resolve, deferred.reject)
       deferred.reject
     )
   else
@@ -212,18 +212,18 @@ removeItem = (key, callback) ->
 
   self = this
 
-  self.ready().then ->
-    dbInfo = self._dbInfo
-    NativeStorage.remove(
-      dbInfo.dataKeyPrefix + key
-      ->
-        _removeKey(key, dbInfo)
-          .then ->
-            deferred.resolve()
-          .catch deferred.reject
-      deferred.reject
-    )
-  .catch deferred.reject
+  self.ready().then(
+    ->
+      dbInfo = self._dbInfo
+      NativeStorage.remove(
+        dbInfo.dataKeyPrefix + key
+        ->
+          _removeKey(key, dbInfo)
+            .then(deferred.resolve, deferred.reject)
+        deferred.reject
+      )
+    deferred.reject
+  )
 
   _return(deferred.promise(), callback)
 
@@ -247,9 +247,10 @@ setItem = (key, value, callback) ->
             serializedValue
             (result) ->
               _addKey(key, dbInfo)
-                .then ->
-                  deferred.resolve(originalValue)
-                .catch deferred.reject
+                .then(
+                  -> deferred.resolve(originalValue)
+                  deferred.reject
+                )
             deferred.reject
           )
     )
