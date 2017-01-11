@@ -1,6 +1,6 @@
 {
   "name": "maji-extras",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "lib/maji-extras.js",
   "scripts": {
