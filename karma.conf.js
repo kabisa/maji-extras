@@ -1,23 +1,26 @@
 "use strict";
-const buble = require("rollup-plugin-buble");
 
 module.exports = function (config) {
   config.set({
     frameworks: [ "mocha", "chai" ],
     preprocessors: {
+      'src/**/*.js': ['rollup'],
       "spec/**/*.js": ["rollup"]
     },
     rollupPreprocessor: {
       // rollup settings. See Rollup documentation
       plugins: [
-        buble() // ES2015 compiler by the same author as Rollup
+        require("rollup-plugin-buble")(),
+        require("rollup-plugin-node-resolve")(),
+        require("rollup-plugin-commonjs")()
       ],
       // will help to prevent conflicts between different tests entries
       format: "es"
     },
 
     files: [
-      { pattern: "spec/**/*.spec.js", watched: true, included: true, served: true }
+      { pattern: 'src/**/*.js', included: false },
+      'spec/**/*.spec.js'
     ],
     client: {
       captureConsole: true,
