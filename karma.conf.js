@@ -6,12 +6,8 @@ module.exports = function(karma) {
     frameworks: [ 'mocha', 'sinon-chai', 'browserify', 'chai-jquery', 'chai-as-promised' ],
 
     files: [
-      { pattern: 'test/**/*spec.coffee', watched: false, included: true, served: true }
+      { pattern: 'spec/**/*.spec.js', watched: false, included: true, served: true }
     ],
-
-    preprocessors: {
-      'test/**/*spec.coffee': [ 'browserify' ]
-    },
 
     client: {
       captureConsole: true,
@@ -22,12 +18,5 @@ module.exports = function(karma) {
 
     reporters: ['mocha'],
     browsers: [ 'PhantomJS' ],
-
-    // browserify configuration
-    browserify: {
-      debug: true,
-      extensions: ['.coffee'],
-      transform: [ 'coffeeify', 'aliasify', 'yamlify' ]
-    }
   });
 };
