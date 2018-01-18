@@ -6,7 +6,7 @@
   "scripts": {
     "test": "karma start --singleRun && npm run lint",
     "watch": "karma start",
-    "build": "coffee -c -o lib src",
+    "build": "coffee --no-header -c -o lib src",
     "lint": "find src/ -type f -name '*.coffee'| xargs coffeelint"
   },
   "repository": {
@@ -21,7 +21,7 @@
     "backbone.radio": "^2.0.0",
     "browserify": "~13.0.0",
     "chai": "~3.5.0",
-    "coffee-script": "~1.12.1",
+    "coffeescript": "~1.12.1",
     "coffeeify": "~2.0.1",
     "coffeelint": "~1.16.0",
     "jquery": "^3.0.0",

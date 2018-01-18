@@ -1,4 +1,3 @@
-window.$ = window.jquery = require('jquery')
 nativeStorageDriver = require('components/nativestorage_driver')
 
 describe 'NativeStorage Driver', ->
@@ -46,7 +45,7 @@ describe 'NativeStorage Driver', ->
 
     context 'with a #ready method that returns a resolved promise', ->
       beforeEach ->
-        nativeStorageDriver.ready = -> $.Deferred().resolve()
+        nativeStorageDriver.ready = -> Promise.resolve()
 
       context 'with a default name and store name', ->
         beforeEach ->

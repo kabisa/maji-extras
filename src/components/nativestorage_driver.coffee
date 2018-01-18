@@ -1,8 +1,7 @@
-$ = require('jquery')
 localforage = require('localforage')
 
 _support = ->
-  $.when(typeof window.NativeStorage != 'undefined')
+  Promise.resolve(typeof window.NativeStorage != 'undefined')
 
 _initStorage = (options) ->
   self = this
@@ -27,12 +26,6 @@ _initStorage = (options) ->
           (error) -> _setKeys([], dbInfo)
         )
 
-# Adds the 'catch' method to promises that do not support it.
-# The default promises of jQuery 3.0.x do not support catch
-_patchPromise = (promise) ->
-  promise.catch ?= promise.fail
-  promise
-
 _return = (promise, callback) ->
   if (callback)
     promise.then(
@@ -40,38 +33,35 @@ _return = (promise, callback) ->
         callback(null, result)
       callback
     )
-  _patchPromise(promise)
+  promise
 
 _getKeys = (dbInfo) ->
-  deferred = $.Deferred()
-
-  NativeStorage.getItem(
-    dbInfo.metaKeyPrefix + 'keys'
-    (serializedKeys) ->
-      deserializedKeys = dbInfo.serializer.deserialize(serializedKeys)
-      deferred.resolve(deserializedKeys)
-    deferred.reject
+  new Promise((resolve, reject) ->
+    NativeStorage.getItem(
+      dbInfo.metaKeyPrefix + 'keys'
+      (serializedKeys) ->
+        deserializedKeys = dbInfo.serializer.deserialize(serializedKeys)
+        resolve(deserializedKeys)
+      reject
+    )
   )
-
-  _patchPromise(deferred.promise())
 
 _setKeys = (keys, dbInfo) ->
-  deferred = $.Deferred()
-
-  dbInfo.serializer.serialize(
-    keys
-    (serializedKeys, error) ->
-      if (error)
-        deferred.reject(error)
-      else
-        NativeStorage.setItem(
-          dbInfo.metaKeyPrefix + 'keys'
-          serializedKeys
-          deferred.resolve
-          deferred.reject
-        )
+  new Promise((resolve, reject) ->
+    dbInfo.serializer.serialize(
+      keys
+      (serializedKeys, error) ->
+        if (error)
+          reject(error)
+        else
+          NativeStorage.setItem(
+            dbInfo.metaKeyPrefix + 'keys'
+            serializedKeys
+            resolve
+            reject
+          )
+    )
   )
-  _patchPromise(deferred.promise())
 
 _addKey = (key, dbInfo) ->
   _getKeys(dbInfo)
@@ -104,44 +94,44 @@ clear = (callback) ->
   _return(p, callback)
 
 _clear = (keys, prefix) ->
-  deferred = $.Deferred()
-
-  if (keys.length > 0)
-    key = keys[0]
-    NativeStorage.remove(
-      prefix + key
-      ->
-        _clear(keys.slice(1), prefix)
-          .then(deferred.resolve, deferred.reject)
-      deferred.reject
-    )
-  else
-    deferred.resolve()
-
-  _patchPromise(deferred.promise())
+  new Promise((resolve, reject) ->
+    if (keys.length > 0)
+      key = keys[0]
+      NativeStorage.remove(
+        prefix + key
+        ->
+          _clear(keys.slice(1), prefix)
+            .then(resolve, reject)
+        reject
+      )
+    else
+      resolve()
+  )
 
 getItem = (key, callback) ->
-  deferred = $.Deferred()
-
   self = this
 
-  self.ready().then ->
-    dbInfo = self._dbInfo
+  promise = new Promise((resolve, reject) ->
+    self.ready().then ->
+      dbInfo = self._dbInfo
 
-    NativeStorage.getItem(
-      dbInfo.dataKeyPrefix + key
-      (value) ->
-        if (value)
-          value = dbInfo.serializer.deserialize(value)
-        deferred.resolve(value)
-      (error) ->
-        # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
-        return deferred.resolve(null) if error.code is 2 # ITEM_NOT_FOUND
-        deferred.reject(error)
-    )
-  .then(null, deferred.reject)
+      NativeStorage.getItem(
+        dbInfo.dataKeyPrefix + key
+        (value) ->
+          if (value)
+            value = dbInfo.serializer.deserialize(value)
+          resolve(value)
+        (error) ->
+          # https://github.com/TheCocoaProject/cordova-plugin-nativestorage#error-codes
+          return resolve(null) if error.code is 2 # ITEM_NOT_FOUND
+          reject(error)
+      )
+    .then(null, reject)
+  )
 
-  _return(deferred.promise(), callback)
+  _return(promise, callback)
+
+
 
 iterate = (iterator, callback) ->
   self = this
@@ -156,27 +146,25 @@ iterate = (iterator, callback) ->
   _return(promise, callback)
 
 _iterate = (keys, dbInfo, iterator, index = 0) ->
-  deferred = $.Deferred()
+  new Promise((resolve, reject) ->
+    if (keys.length > 0)
+      key = keys[0]
+      NativeStorage.getItem(
+        dbInfo.dataKeyPrefix + key
+        (serializedValue) ->
+          deserializedValue = dbInfo.serializer.deserialize(serializedValue)
+          iterationResult = iterator(deserializedValue, key, index + 1)
 
-  if (keys.length > 0)
-    key = keys[0]
-    NativeStorage.getItem(
-      dbInfo.dataKeyPrefix + key
-      (serializedValue) ->
-        deserializedValue = dbInfo.serializer.deserialize(serializedValue)
-        iterationResult = iterator(deserializedValue, key, index + 1)
-
-        if (iterationResult != undefined)
-          deferred.resolve(iterationResult)
-        else
-          _iterate(keys.slice(1), dbInfo, iterator, index + 1)
-            .then(deferred.resolve, deferred.reject)
-      deferred.reject
-    )
-  else
-    deferred.resolve()
-
-  _patchPromise(deferred.promise())
+          if (iterationResult != undefined)
+            resolve(iterationResult)
+          else
+            _iterate(keys.slice(1), dbInfo, iterator, index + 1)
+              .then(resolve, reject)
+        reject
+      )
+    else
+      resolve()
+  )
 
 key = (n, callback) ->
   self = this
@@ -208,54 +196,54 @@ length = (callback) ->
   _return(promise, callback)
 
 removeItem = (key, callback) ->
-  deferred = $.Deferred()
-
   self = this
 
-  self.ready().then(
-    ->
-      dbInfo = self._dbInfo
-      NativeStorage.remove(
-        dbInfo.dataKeyPrefix + key
-        ->
-          _removeKey(key, dbInfo)
-            .then(deferred.resolve, deferred.reject)
-        deferred.reject
-      )
-    deferred.reject
+  promise = new Promise((resolve, reject) ->
+    self.ready().then(
+      ->
+        dbInfo = self._dbInfo
+        NativeStorage.remove(
+          dbInfo.dataKeyPrefix + key
+          ->
+            _removeKey(key, dbInfo)
+              .then(resolve, reject)
+          reject
+        )
+      reject
+    )
   )
 
-  _return(deferred.promise(), callback)
+  _return(promise, callback)
 
 setItem = (key, value, callback) ->
-  deferred = $.Deferred()
-
   self = this
 
-  self.ready().then ->
-    dbInfo = self._dbInfo
-    originalValue = value
+  promise = new Promise((resolve, reject) ->
+    self.ready().then ->
+      dbInfo = self._dbInfo
+      originalValue = value
 
-    dbInfo.serializer.serialize(
-      value
-      (serializedValue, error) ->
-        if (error)
-          deferred.reject(error)
-        else
-          NativeStorage.setItem(
-            dbInfo.dataKeyPrefix + key
-            serializedValue
-            (result) ->
-              _addKey(key, dbInfo)
-                .then(
-                  -> deferred.resolve(originalValue)
-                  deferred.reject
-                )
-            deferred.reject
-          )
-    )
+      dbInfo.serializer.serialize(
+        value
+        (serializedValue, error) ->
+          if (error)
+            reject(error)
+          else
+            NativeStorage.setItem(
+              dbInfo.dataKeyPrefix + key
+              serializedValue
+              (result) ->
+                _addKey(key, dbInfo)
+                  .then(
+                    -> resolve(originalValue)
+                    reject
+                  )
+              reject
+            )
+      )
+  )
 
-  _return(deferred.promise(), callback)
+  _return(promise, callback)
 
 nativeStorageDriver =
   _driver: 'nativeStorageDriver'
