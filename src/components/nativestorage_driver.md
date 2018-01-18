@@ -7,6 +7,8 @@ Use this driver to interact with the NativeStorage plug-in using the Localforage
 
 ## Usage
 
+This driver uses native Promises. Depending on the browser support requirements for your project, you might have to use a Promise polyfill.
+
 This driver depends on the NativeStorage Cordova plug-in.
 Install the plug-in by including the following line in `config.xml`:
 
